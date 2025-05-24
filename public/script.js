@@ -144,18 +144,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Update the game status message
+    // Update the game status message and highlight winning positions if any
     function updateGameStatus(gameState) {
         if (gameState.gameOver) {
             if (gameState.winner === 'Draw') {
                 statusDiv.textContent = "It's a draw!";
-            } else if (gameState.winner === 'R') {
-                statusDiv.textContent = 'You win!';
-            } else if (gameState.winner === 'Y') {
-                statusDiv.textContent = 'Computer wins!';
+            } else if (isPlayerVsComputer) {
+                statusDiv.textContent = gameState.winner === 'R' ? 'You win!' : 'Computer wins!';
+                
+                // Highlight winning positions if available
+                if (gameState.winningPositions && gameState.winningPositions.length > 0) {
+                    highlightWinningPositions(gameState.winningPositions, gameState.winner);
+                }
+            } else {
+                statusDiv.textContent = `Player ${gameState.winner} wins!`;
+                
+                // Highlight winning positions if available
+                if (gameState.winningPositions && gameState.winningPositions.length > 0) {
+                    highlightWinningPositions(gameState.winningPositions, gameState.winner);
+                }
             }
         } else {
-            statusDiv.textContent = 'Your turn';
+            if (isPlayerVsComputer) {
+                statusDiv.textContent = 'Your turn'; // Player is always X
+            } else {
+                statusDiv.textContent = `Player ${localCurrentPlayer}'s turn`;
+            }
+            
+            // Remove any existing winning line
+            removeWinningLine();
         }
     }
     
@@ -320,6 +337,9 @@ document.addEventListener('DOMContentLoaded', () => {
             updateBoardFromState(gameState.board);
             updateGameStatus(gameState);
             
+            // Remove any winning line
+            removeWinningLine();
+            
             setBoardEnabled(true);
         } catch (error) {
             console.error("Failed to reset game:", error);
@@ -371,5 +391,123 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!enabled) {
             hideDiscPreview();
         }
+    }
+    
+    // Highlight winning positions by drawing a line through them
+    function highlightWinningPositions(positions, winner) {
+        // Remove any existing winning line
+        removeWinningLine();
+        
+        if (!positions || positions.length < 2) return;
+        
+        // Create a canvas element for drawing the line
+        const canvas = document.createElement('canvas');
+        canvas.id = 'winning-line';
+        canvas.className = 'winning-line';
+        
+        // Position the canvas over the board
+        const boardRect = boardDiv.getBoundingClientRect();
+        canvas.width = boardRect.width;
+        canvas.height = boardRect.height;
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.pointerEvents = 'none'; // So it doesn't interfere with clicks
+        
+        // Add the canvas to the board container
+        const boardContainer = document.getElementById('board-container');
+        boardContainer.style.position = 'relative'; // Ensure relative positioning for absolute child
+        boardContainer.appendChild(canvas);
+        
+        // Get the context for drawing
+        const ctx = canvas.getContext('2d');
+        
+        // Sort positions to ensure we draw from one end to the other
+        // This is important for diagonal lines
+        positions.sort((a, b) => {
+            if (a[0] === b[0]) return a[1] - b[1]; // Sort by column if same row
+            return a[0] - b[0]; // Otherwise sort by row
+        });
+        
+        // Add winner class to the winning cells to make them pulse
+        positions.forEach(pos => {
+            const row = pos[0];
+            const col = pos[1];
+            cells[row][col].classList.add('winner');
+        });
+        
+        // Get the coordinates of the first and last cells in the winning line
+        const firstCell = cells[positions[0][0]][positions[0][1]].getBoundingClientRect();
+        const lastCell = cells[positions[positions.length-1][0]][positions[positions.length-1][1]].getBoundingClientRect();
+        
+        // Calculate the center points relative to the canvas
+        const startX = firstCell.left + firstCell.width/2 - boardRect.left;
+        const startY = firstCell.top + firstCell.height/2 - boardRect.top;
+        const endX = lastCell.left + lastCell.width/2 - boardRect.left;
+        const endY = lastCell.top + lastCell.height/2 - boardRect.top;
+        
+        // Set line style based on winner
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
+        
+        if (winner === 'R') {
+            ctx.strokeStyle = 'rgba(255, 107, 107, 0.8)'; // Red with opacity
+        } else {
+            ctx.strokeStyle = 'rgba(255, 212, 59, 0.8)'; // Yellow with opacity
+        }
+        
+        // Draw the line with animation
+        animateLine(ctx, startX, startY, endX, endY);
+    }
+    
+    // Animate the drawing of the line
+    function animateLine(ctx, startX, startY, endX, endY) {
+        const dx = endX - startX;
+        const dy = endY - startY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const duration = 800; // milliseconds
+        const speed = distance / duration;
+        
+        let progress = 0;
+        let lastTimestamp = null;
+        
+        function draw(timestamp) {
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const elapsed = timestamp - lastTimestamp;
+            lastTimestamp = timestamp;
+            
+            progress += speed * elapsed;
+            if (progress > distance) progress = distance;
+            
+            const ratio = progress / distance;
+            const currentX = startX + dx * ratio;
+            const currentY = startY + dy * ratio;
+            
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+            
+            if (progress < distance) {
+                requestAnimationFrame(draw);
+            }
+        }
+        
+        requestAnimationFrame(draw);
+    }
+    
+    // Remove any existing winning line and winner classes
+    function removeWinningLine() {
+        // Remove the canvas line
+        const existingLine = document.getElementById('winning-line');
+        if (existingLine) {
+            existingLine.parentNode.removeChild(existingLine);
+        }
+        
+        // Remove winner class from all cells
+        document.querySelectorAll('.cell.winner').forEach(cell => {
+            cell.classList.remove('winner');
+        });
     }
 });

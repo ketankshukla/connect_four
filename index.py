@@ -18,14 +18,16 @@ COMPUTER = "Y"  # Yellow
 board = [[EMPTY for _ in range(COLS)] for _ in range(ROWS)]
 game_over = False
 winner = None
+winning_positions = []  # To store the positions of the winning discs
 player_vs_computer = True
 
 def reset_game_state():
     """Reset the game to its initial state"""
-    global board, game_over, winner
+    global board, game_over, winner, winning_positions
     board = [[EMPTY for _ in range(COLS)] for _ in range(ROWS)]
     game_over = False
     winner = None
+    winning_positions = []
 
 def is_valid_move(col):
     """Check if a move is valid (column not full)"""
@@ -48,7 +50,10 @@ def make_move(col, piece):
 
 def check_winner():
     """Check if there's a winner or a draw"""
-    global game_over, winner
+    global game_over, winner, winning_positions
+    
+    # Reset winning positions
+    winning_positions = []
     
     # Check horizontal locations
     for r in range(ROWS):
@@ -56,6 +61,7 @@ def check_winner():
             if board[r][c] != EMPTY and board[r][c] == board[r][c+1] == board[r][c+2] == board[r][c+3]:
                 winner = board[r][c]
                 game_over = True
+                winning_positions = [(r, c), (r, c+1), (r, c+2), (r, c+3)]
                 return
 
     # Check vertical locations
@@ -64,6 +70,7 @@ def check_winner():
             if board[r][c] != EMPTY and board[r][c] == board[r+1][c] == board[r+2][c] == board[r+3][c]:
                 winner = board[r][c]
                 game_over = True
+                winning_positions = [(r, c), (r+1, c), (r+2, c), (r+3, c)]
                 return
 
     # Check positively sloped diagonals
@@ -72,6 +79,7 @@ def check_winner():
             if board[r][c] != EMPTY and board[r][c] == board[r+1][c+1] == board[r+2][c+2] == board[r+3][c+3]:
                 winner = board[r][c]
                 game_over = True
+                winning_positions = [(r, c), (r+1, c+1), (r+2, c+2), (r+3, c+3)]
                 return
 
     # Check negatively sloped diagonals
@@ -80,6 +88,7 @@ def check_winner():
             if board[r][c] != EMPTY and board[r][c] == board[r-1][c+1] == board[r-2][c+2] == board[r-3][c+3]:
                 winner = board[r][c]
                 game_over = True
+                winning_positions = [(r, c), (r-1, c+1), (r-2, c+2), (r-3, c+3)]
                 return
     
     # Check for draw (board full)
@@ -286,6 +295,7 @@ def get_state():
         "cols": COLS,
         "gameOver": game_over,
         "winner": winner,
+        "winningPositions": winning_positions,
         "playerVsComputer": player_vs_computer
     })
 
@@ -342,6 +352,7 @@ def make_player_move():
         "board": flat_board,
         "gameOver": game_over,
         "winner": winner,
+        "winningPositions": winning_positions,
         "message": "Your turn." if not game_over else 
                   ("You win!" if winner == PLAYER else 
                    ("Computer wins!" if winner == COMPUTER else "It's a draw!"))
@@ -364,6 +375,7 @@ def reset_game_endpoint():
         "cols": COLS,
         "gameOver": game_over,
         "winner": winner,
+        "winningPositions": winning_positions,
         "playerVsComputer": player_vs_computer,
         "message": "Game reset. Your turn."
     })
