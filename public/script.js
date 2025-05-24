@@ -231,15 +231,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add a small delay before computer's move
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
-                // Don't show any preview - skip directly to animation
-                // We'll keep the original value in the board state
-                const originalValue = boardState[gameState.computerMoveRow][gameState.computerMoveCol];
-                
-                // Animate the computer's disc dropping
-                await animateDiscDrop(gameState.computerMoveRow, gameState.computerMoveCol, 'Y');
-                
-                // Restore the board state
-                boardState[gameState.computerMoveRow][gameState.computerMoveCol] = originalValue;
+                // For computer moves, don't animate - just update the cell directly
+                cells[gameState.computerMoveRow][gameState.computerMoveCol].classList.add('Y');
+                cells[gameState.computerMoveRow][gameState.computerMoveCol].style.backgroundColor = '#FFD43B'; // Yellow
                 
                 // Update game status again after computer's move
                 gameOver = gameState.gameOver;
