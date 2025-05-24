@@ -231,10 +231,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add a small delay before computer's move
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
-                // Remove the piece from the board state temporarily for animation
+                // Don't show any preview - skip directly to animation
+                // We'll keep the original value in the board state
                 const originalValue = boardState[gameState.computerMoveRow][gameState.computerMoveCol];
-                boardState[gameState.computerMoveRow][gameState.computerMoveCol] = '';
-                updateVisualBoard(); // Update the board without the computer's piece
                 
                 // Animate the computer's disc dropping
                 await animateDiscDrop(gameState.computerMoveRow, gameState.computerMoveCol, 'Y');
