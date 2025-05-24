@@ -92,15 +92,7 @@ h1 {
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-.cell.highlight {
-    animation: pulse 1s ease-in-out;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 255, 255, 0.7); }
-    100% { transform: scale(1); }
-}
+/* Animation effects have been removed */
 
 #column-selectors {
     display: grid;
@@ -165,31 +157,13 @@ h1 {
 
 /* Hover effects have been removed */
 
-/* Temporary disc for dropping animation */
-.temp-disc {
-    position: fixed;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    z-index: 1000;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-    transition: top 0.5s cubic-bezier(0.5, 0, 1, 1), left 0.3s ease-out;
-    pointer-events: none; /* So it doesn't interfere with clicks */
-}
+/* Animation elements have been removed */
 
 /* We're using inline styles for disc colors now */
 
-/* Bounce effect for when disc lands */
-@keyframes bounce {
-    0% { transform: translateY(-10px); }
-    50% { transform: translateY(5px); }
-    75% { transform: translateY(-3px); }
-    100% { transform: translateY(0); }
-}
+/* Animation effects have been removed */
 
-.highlight {
-    animation: bounce 0.5s ease-out;
-}
+/* All animation effects have been removed */
 
 /* Winning line animation */
 .winning-line {

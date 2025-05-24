@@ -206,37 +206,28 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update game status
             gameOver = gameState.gameOver;
             
-            // Animate player's move
+            // Player's move - no animation, just update the cell directly
             if (gameState.playerMoveRow !== undefined && gameState.playerMoveCol !== undefined) {
-                // Remove the piece from the board state temporarily for animation
-                const originalValue = boardState[gameState.playerMoveRow][gameState.playerMoveCol];
-                boardState[gameState.playerMoveRow][gameState.playerMoveCol] = '';
-                updateVisualBoard(); // Update the board without the player's piece
-                
-                // Animate the player's disc dropping
-                await animateDiscDrop(gameState.playerMoveRow, gameState.playerMoveCol, 'R');
-                
-                // Restore the board state
-                boardState[gameState.playerMoveRow][gameState.playerMoveCol] = originalValue;
+                cells[gameState.playerMoveRow][gameState.playerMoveCol].classList.add('R');
+                cells[gameState.playerMoveRow][gameState.playerMoveCol].style.backgroundColor = '#FF6B6B'; // Red
             }
             
             // Update game status after player's move
             updateGameStatus(gameState);
             
-            // If computer made a move, animate it after a small delay
+            // Computer's move - no animation, just update the cell directly after a short delay
             if (gameState.computerMoved && 
                 gameState.computerMoveRow !== undefined && 
                 gameState.computerMoveCol !== undefined) {
                 
-                // Add a longer delay before computer's move to ensure player animation is complete
-                // The player animation takes about 1000ms (500ms for drop + 500ms for highlight)
-                await new Promise(resolve => setTimeout(resolve, 1200));
+                // Add a small delay between player and computer moves
+                await new Promise(resolve => setTimeout(resolve, 300));
                 
-                // For computer moves, don't animate - just update the cell directly
+                // Update the cell directly
                 cells[gameState.computerMoveRow][gameState.computerMoveCol].classList.add('Y');
                 cells[gameState.computerMoveRow][gameState.computerMoveCol].style.backgroundColor = '#FFD43B'; // Yellow
                 
-                // Update game status again after computer's move
+                // Update game status after computer's move
                 gameOver = gameState.gameOver;
                 updateGameStatus(gameState);
             }
@@ -252,62 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Animate a disc dropping from the top to its position
-    function animateDiscDrop(row, col, pieceType) {
-        return new Promise(resolve => {
-            // Create a temporary disc element for the animation
-            const tempDisc = document.createElement('div');
-            tempDisc.className = `temp-disc`;
-            
-            // Set the proper color based on piece type
-            if (pieceType === 'R') {
-                tempDisc.style.backgroundColor = '#FF6B6B'; // Red
-            } else if (pieceType === 'Y') {
-                tempDisc.style.backgroundColor = '#FFD43B'; // Yellow
-            }
-            
-            document.body.appendChild(tempDisc);
-            
-            // Get positions for animation
-            const boardRect = boardDiv.getBoundingClientRect();
-            const cellRect = cells[row][col].getBoundingClientRect();
-            const selectorRect = columnSelectors[col].getBoundingClientRect();
-            
-            // Position the temp disc at the top of the column
-            tempDisc.style.left = `${selectorRect.left + selectorRect.width/2 - 30}px`;
-            tempDisc.style.top = `${selectorRect.top + selectorRect.height}px`;
-            
-            // Start the dropping animation
-            setTimeout(() => {
-                // Animate to final position
-                tempDisc.style.top = `${cellRect.top + cellRect.height/2 - 30}px`;
-                tempDisc.style.left = `${cellRect.left + cellRect.width/2 - 30}px`;
-                
-                // When animation completes, update the actual cell and remove temp disc
-                setTimeout(() => {
-                    // Update the actual cell
-                    cells[row][col].classList.add(pieceType);
-                    cells[row][col].classList.add('highlight');
-                    
-                    // Set the cell background color directly
-                    if (pieceType === 'R') {
-                        cells[row][col].style.backgroundColor = '#FF6B6B'; // Red
-                    } else if (pieceType === 'Y') {
-                        cells[row][col].style.backgroundColor = '#FFD43B'; // Yellow
-                    }
-                    
-                    // Remove the temporary disc
-                    document.body.removeChild(tempDisc);
-                    
-                    // Remove highlight after a delay
-                    setTimeout(() => {
-                        cells[row][col].classList.remove('highlight');
-                        resolve(); // Resolve the promise when animation is complete
-                    }, 500);
-                }, 500); // Match this to the CSS animation duration
-            }, 50);
-        });
-    }
+    // Animation functions have been removed - discs now appear instantly
     
     // Handle game reset
     async function handleReset() {
