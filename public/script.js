@@ -110,26 +110,52 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update just the visual representation of the board
     function updateVisualBoard() {
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                const cell = cells[r][c];
-                
-                // Reset all properties and classes
-                cell.className = 'cell';
-                cell.style.backgroundColor = '#3c3c3c'; // Reset to default background
-                
-                // Remove any data attributes
-                if (cell.dataset.originalColor) {
-                    delete cell.dataset.originalColor;
+        // During reset, we need to completely clear the board
+        // This is detected by checking if all cells are empty
+        const isReset = boardState.every(row => row.every(cell => cell === ''));
+        
+        if (isReset) {
+            // Complete reset - clear all cells including winning highlights
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = cells[r][c];
+                    
+                    // Reset all properties and classes
+                    cell.className = 'cell';
+                    cell.style.backgroundColor = '#3c3c3c'; // Reset to default background
+                    
+                    // Remove any data attributes
+                    if (cell.dataset.originalColor) {
+                        delete cell.dataset.originalColor;
+                    }
+                    
+                    // Remove winner class
+                    cell.classList.remove('winner');
                 }
-                
-                // Add appropriate class based on board state
-                if (boardState[r][c] === 'R') {
-                    cell.classList.add('R');
-                    cell.style.backgroundColor = '#FF6B6B'; // Red
-                } else if (boardState[r][c] === 'Y') {
-                    cell.classList.add('Y');
-                    cell.style.backgroundColor = '#FFD43B'; // Yellow
+            }
+        } else {
+            // Normal update - preserve winning cells
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = cells[r][c];
+                    
+                    // Skip cells that are already marked as winners
+                    if (cell.classList.contains('winner')) {
+                        continue;
+                    }
+                    
+                    // Reset non-winning cells
+                    cell.className = 'cell';
+                    cell.style.backgroundColor = '#3c3c3c'; // Reset to default background
+                    
+                    // Add appropriate class based on board state
+                    if (boardState[r][c] === 'R') {
+                        cell.classList.add('R');
+                        cell.style.backgroundColor = '#FF6B6B'; // Red
+                    } else if (boardState[r][c] === 'Y') {
+                        cell.classList.add('Y');
+                        cell.style.backgroundColor = '#FFD43B'; // Yellow
+                    }
                 }
             }
         }
@@ -295,8 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Enable or disable the board
     function setBoardEnabled(enabled) {
-        // Visual indicator that the board is disabled
-        boardDiv.style.opacity = enabled ? '1' : '0.7';
+        // No visual indicator change to prevent flashing
         
         // Disable/enable column selectors
         columnSelectors.forEach(selector => {
@@ -305,8 +330,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Disable/enable reset button
         resetButton.disabled = !enabled;
-        
-        // Preview functionality has been completely removed
     }
     
     // Highlight winning positions by changing their color to green
@@ -343,23 +366,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // The CSS animation will handle the visual effect
     }
     
-    // Remove any existing winning highlights
+    // Remove any existing winning highlights - only used during reset
     function removeWinningHighlights() {
-        // Remove winner class from all cells
-        document.querySelectorAll('.cell.winner').forEach(cell => {
-            cell.classList.remove('winner');
-            
-            // Restore original cell color if it exists
-            if (cell.dataset.originalColor) {
-                cell.style.backgroundColor = cell.dataset.originalColor;
-                delete cell.dataset.originalColor;
-            } else if (cell.classList.contains('R')) {
-                cell.style.backgroundColor = '#FF6B6B'; // Red
-            } else if (cell.classList.contains('Y')) {
-                cell.style.backgroundColor = '#FFD43B'; // Yellow
-            } else {
-                cell.style.backgroundColor = '#3c3c3c'; // Default background
-            }
-        });
+        // Only remove winner highlights when explicitly resetting the game
+        // This function is now only called during game reset
     }
 });
