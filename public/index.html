@@ -11,19 +11,20 @@
         <h1>Connect Four</h1>
         <div class="game-info">
             <p>You are <span class="player-red">Red</span> | Computer is <span class="player-yellow">Yellow</span></p>
+            <p class="instructions">Click on any column arrow ↓ to drop your disc</p>
         </div>
         <div id="status" class="status">Your turn</div>
         
         <div id="board-container">
             <!-- Column selectors for dropping pieces -->
             <div id="column-selectors">
-                <div class="column-selector" data-column="0"></div>
-                <div class="column-selector" data-column="1"></div>
-                <div class="column-selector" data-column="2"></div>
-                <div class="column-selector" data-column="3"></div>
-                <div class="column-selector" data-column="4"></div>
-                <div class="column-selector" data-column="5"></div>
-                <div class="column-selector" data-column="6"></div>
+                <div class="column-selector" data-column="0" title="Drop disc in column 1"></div>
+                <div class="column-selector" data-column="1" title="Drop disc in column 2"></div>
+                <div class="column-selector" data-column="2" title="Drop disc in column 3"></div>
+                <div class="column-selector" data-column="3" title="Drop disc in column 4"></div>
+                <div class="column-selector" data-column="4" title="Drop disc in column 5"></div>
+                <div class="column-selector" data-column="5" title="Drop disc in column 6"></div>
+                <div class="column-selector" data-column="6" title="Drop disc in column 7"></div>
             </div>
             
             <!-- Game board -->

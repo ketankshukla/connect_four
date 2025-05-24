@@ -22,6 +22,21 @@ body {
     font-size: 1.2em;
 }
 
+.instructions {
+    background-color: rgba(75, 139, 190, 0.2);
+    padding: 8px 15px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 1.1em;
+    animation: pulse-light 2s infinite;
+}
+
+@keyframes pulse-light {
+    0% { background-color: rgba(75, 139, 190, 0.2); }
+    50% { background-color: rgba(75, 139, 190, 0.4); }
+    100% { background-color: rgba(75, 139, 190, 0.2); }
+}
+
 .player-red {
     color: #FF6B6B; /* Red */
     font-weight: bold;
@@ -81,10 +96,22 @@ h1 {
     animation: pulse 1s ease-in-out;
 }
 
+.cell.preview-red {
+    background-color: rgba(255, 107, 107, 0.3); /* Red with opacity */
+    box-shadow: inset 0 0 15px rgba(255, 107, 107, 0.5);
+    animation: preview-pulse 1.5s infinite;
+}
+
 @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 255, 255, 0.7); }
     100% { transform: scale(1); }
+}
+
+@keyframes preview-pulse {
+    0% { background-color: rgba(255, 107, 107, 0.2); }
+    50% { background-color: rgba(255, 107, 107, 0.4); }
+    100% { background-color: rgba(255, 107, 107, 0.2); }
 }
 
 #column-selectors {
@@ -92,24 +119,50 @@ h1 {
     grid-template-columns: repeat(7, 60px);
     gap: 5px;
     margin: 0 auto 5px auto;
+    position: relative;
 }
 
 .column-selector {
     width: 60px;
-    height: 30px;
-    background-color: transparent;
+    height: 40px;
+    background-color: rgba(75, 139, 190, 0.3); /* Light Python Blue */
     cursor: pointer;
     border-radius: 10px 10px 0 0;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.column-selector::after {
+    content: '↓';
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s ease;
 }
 
 .column-selector:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(75, 139, 190, 0.6);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.column-selector:hover::after {
+    color: rgba(255, 255, 255, 1);
+    transform: translateY(3px);
 }
 
 .column-selector.disabled {
     cursor: not-allowed;
-    background-color: transparent;
+    background-color: rgba(75, 139, 190, 0.1);
+    opacity: 0.5;
+}
+
+.column-selector.disabled::after {
+    content: 'x';
+    color: rgba(255, 0, 0, 0.5);
 }
 
 .status {

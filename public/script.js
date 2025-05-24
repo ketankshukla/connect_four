@@ -19,11 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
     resetButton.addEventListener('click', handleReset);
     columnSelectors.forEach(selector => {
+        // Click event for dropping a disc
         selector.addEventListener('click', () => {
             if (!gameOver) {
                 const column = parseInt(selector.getAttribute('data-column'));
                 handleColumnClick(column);
             }
+        });
+        
+        // Hover events to show preview
+        selector.addEventListener('mouseenter', () => {
+            if (!gameOver) {
+                const column = parseInt(selector.getAttribute('data-column'));
+                showDiscPreview(column);
+            }
+        });
+        
+        selector.addEventListener('mouseleave', () => {
+            hideDiscPreview();
         });
     });
     
@@ -251,6 +264,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // Show a preview of where the disc would be dropped
+    function showDiscPreview(column) {
+        if (boardState[0][column] !== '') return; // Column is full
+        
+        // Find the lowest empty cell in the column
+        let row = -1;
+        for (let r = rows-1; r >= 0; r--) {
+            if (boardState[r][column] === '') {
+                row = r;
+                break;
+            }
+        }
+        
+        if (row !== -1) {
+            const cell = cells[row][column];
+            cell.classList.add('preview-red');
+        }
+    }
+    
+    // Hide the disc preview
+    function hideDiscPreview() {
+        document.querySelectorAll('.preview-red').forEach(cell => {
+            cell.classList.remove('preview-red');
+        });
+    }
+    
     // Enable or disable the board
     function setBoardEnabled(enabled) {
         // Visual indicator that the board is disabled
@@ -263,5 +302,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Disable/enable reset button
         resetButton.disabled = !enabled;
+        
+        // Hide any preview when disabled
+        if (!enabled) {
+            hideDiscPreview();
+        }
     }
 });
