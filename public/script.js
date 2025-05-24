@@ -228,8 +228,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState.computerMoveRow !== undefined && 
                 gameState.computerMoveCol !== undefined) {
                 
-                // Add a small delay before computer's move
-                await new Promise(resolve => setTimeout(resolve, 300));
+                // Add a longer delay before computer's move to ensure player animation is complete
+                // The player animation takes about 1000ms (500ms for drop + 500ms for highlight)
+                await new Promise(resolve => setTimeout(resolve, 1200));
                 
                 // For computer moves, don't animate - just update the cell directly
                 cells[gameState.computerMoveRow][gameState.computerMoveCol].classList.add('Y');
