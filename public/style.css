@@ -131,16 +131,7 @@ h1 {
     transition: all 0.2s ease;
 }
 
-.column-selector:hover {
-    background-color: rgba(75, 139, 190, 0.6);
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.column-selector:hover::after {
-    color: rgba(255, 255, 255, 1);
-    transform: translateY(3px);
-}
+/* Hover effects have been removed */
 
 .column-selector.disabled {
     cursor: not-allowed;
@@ -172,9 +163,7 @@ h1 {
     margin-top: 20px;
 }
 
-#reset-button:hover {
-    background-color: #e0b62f; /* Darker Yellow */
-}
+/* Hover effects have been removed */
 
 /* Temporary disc for dropping animation */
 .temp-disc {

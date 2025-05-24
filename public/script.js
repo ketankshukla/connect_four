@@ -350,15 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Preview functionality has been removed for performance reasons
-    function showDiscPreview(col) {
-        // Function kept as a stub for compatibility but does nothing
-    }
-    
-    // Hide the disc preview - kept as a stub
-    function hideDiscPreview() {
-        // Function kept as a stub for compatibility but does nothing
-    }
+    // Preview functionality has been completely removed
     
     // Enable or disable the board
     function setBoardEnabled(enabled) {
@@ -373,10 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Disable/enable reset button
         resetButton.disabled = !enabled;
         
-        // Hide any preview when disabled
-        if (!enabled) {
-            hideDiscPreview();
-        }
+        // Preview functionality has been completely removed
     }
     
     // Highlight winning positions by changing their color to green
