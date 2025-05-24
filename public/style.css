@@ -1,0 +1,168 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #2B2B2B; /* Charcoal */
+    color: #FFFFFF; /* White */
+}
+
+.container {
+    text-align: center;
+    background-color: #3c3c3c; /* Darker Gray */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.game-info {
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.player-red {
+    color: #FF6B6B; /* Red */
+    font-weight: bold;
+    font-size: 1.3em;
+}
+
+.player-yellow {
+    color: #FFD43B; /* Python Yellow */
+    font-weight: bold;
+    font-size: 1.3em;
+}
+
+h1 {
+    color: #FFD43B; /* Python Yellow */
+    margin-bottom: 20px;
+}
+
+#board-container {
+    margin: 20px auto;
+    position: relative;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(7, 60px);
+    grid-template-rows: repeat(6, 60px);
+    gap: 5px;
+    background-color: #4B8BBE; /* Python Blue */
+    padding: 10px;
+    border-radius: 10px;
+    margin: 0 auto;
+}
+
+.cell {
+    width: 60px;
+    height: 60px;
+    background-color: #3c3c3c; /* Darker Gray */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.cell.R {
+    background-color: #FF6B6B; /* Red */
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.cell.Y {
+    background-color: #FFD43B; /* Python Yellow */
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.cell.highlight {
+    animation: pulse 1s ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 255, 255, 0.7); }
+    100% { transform: scale(1); }
+}
+
+#column-selectors {
+    display: grid;
+    grid-template-columns: repeat(7, 60px);
+    gap: 5px;
+    margin: 0 auto 5px auto;
+}
+
+.column-selector {
+    width: 60px;
+    height: 30px;
+    background-color: transparent;
+    cursor: pointer;
+    border-radius: 10px 10px 0 0;
+    transition: background-color 0.2s ease;
+}
+
+.column-selector:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.column-selector.disabled {
+    cursor: not-allowed;
+    background-color: transparent;
+}
+
+.status {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    min-height: 1.5em; /* To prevent layout shift */
+    font-weight: bold;
+}
+
+#reset-button {
+    padding: 10px 20px;
+    font-size: 1em;
+    color: #2B2B2B; /* Charcoal text */
+    background-color: #FFD43B; /* Python Yellow */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    margin-top: 20px;
+}
+
+#reset-button:hover {
+    background-color: #e0b62f; /* Darker Yellow */
+}
+
+/* Animation for dropping pieces */
+@keyframes drop {
+    0% { transform: translateY(-300px); }
+    100% { transform: translateY(0); }
+}
+
+.dropping {
+    animation: drop 0.5s ease-in;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .board {
+        grid-template-columns: repeat(7, 40px);
+        grid-template-rows: repeat(6, 40px);
+    }
+    
+    .cell {
+        width: 40px;
+        height: 40px;
+    }
+    
+    #column-selectors {
+        grid-template-columns: repeat(7, 40px);
+    }
+    
+    .column-selector {
+        width: 40px;
+        height: 20px;
+    }
+}
