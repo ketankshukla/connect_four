@@ -26,18 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleColumnClick(column);
             }
         });
-        
-        // Hover events to show preview
-        selector.addEventListener('mouseenter', () => {
-            if (!gameOver) {
-                const column = parseInt(selector.getAttribute('data-column'));
-                showDiscPreview(column);
-            }
-        });
-        
-        selector.addEventListener('mouseleave', () => {
-            hideDiscPreview();
-        });
     });
     
     // Initialize the game board and fetch initial state
@@ -187,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             setBoardEnabled(false);
-            hideDiscPreview(); // Hide any preview
             
             const response = await fetch('/api/move', {
                 method: 'POST',
@@ -348,30 +335,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Show a preview of where the disc would be dropped
-    function showDiscPreview(column) {
-        if (boardState[0][column] !== '') return; // Column is full
-        
-        // Find the lowest empty cell in the column
-        let row = -1;
-        for (let r = rows-1; r >= 0; r--) {
-            if (boardState[r][column] === '') {
-                row = r;
-                break;
-            }
-        }
-        
-        if (row !== -1) {
-            const cell = cells[row][column];
-            cell.classList.add('preview-red');
-        }
+    // Preview functionality has been removed for performance reasons
+    function showDiscPreview(col) {
+        // Function kept as a stub for compatibility but does nothing
     }
     
-    // Hide the disc preview
+    // Hide the disc preview - kept as a stub
     function hideDiscPreview() {
-        document.querySelectorAll('.preview-red').forEach(cell => {
-            cell.classList.remove('preview-red');
-        });
+        // Function kept as a stub for compatibility but does nothing
     }
     
     // Enable or disable the board
