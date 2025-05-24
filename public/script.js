@@ -114,6 +114,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Update the visual board
+        updateVisualBoard();
+        
+        // Update column selectors (disable full columns)
+        updateColumnSelectors();
+    }
+    
+    // Update just the visual representation of the board
+    function updateVisualBoard() {
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
                 const cell = cells[r][c];
@@ -126,9 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        
-        // Update column selectors (disable full columns)
-        updateColumnSelectors();
     }
     
     // Update the column selectors (disable full columns)
@@ -165,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             setBoardEnabled(false);
+            hideDiscPreview(); // Hide any preview
             
             const response = await fetch('/api/move', {
                 method: 'POST',
@@ -181,34 +187,65 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const gameState = await response.json();
             
-            // Update the board with player's move
-            updateBoardFromState(gameState.board);
-            
-            // Highlight player's move
-            if (gameState.playerMoveRow !== undefined && gameState.playerMoveCol !== undefined) {
-                highlightCell(gameState.playerMoveRow, gameState.playerMoveCol, 'R');
+            // Store the board state but don't update the visual board yet
+            // We'll update it after animations
+            boardState = [];
+            for (let r = 0; r < rows; r++) {
+                const row = [];
+                for (let c = 0; c < cols; c++) {
+                    const index = r * cols + c;
+                    row.push(gameState.board[index]);
+                }
+                boardState.push(row);
             }
             
             // Update game status
             gameOver = gameState.gameOver;
+            
+            // Animate player's move
+            if (gameState.playerMoveRow !== undefined && gameState.playerMoveCol !== undefined) {
+                // Remove the piece from the board state temporarily for animation
+                const originalValue = boardState[gameState.playerMoveRow][gameState.playerMoveCol];
+                boardState[gameState.playerMoveRow][gameState.playerMoveCol] = '';
+                updateVisualBoard(); // Update the board without the player's piece
+                
+                // Animate the player's disc dropping
+                await animateDiscDrop(gameState.playerMoveRow, gameState.playerMoveCol, 'R');
+                
+                // Restore the board state
+                boardState[gameState.playerMoveRow][gameState.playerMoveCol] = originalValue;
+            }
+            
+            // Update game status after player's move
             updateGameStatus(gameState);
             
-            // If computer made a move, highlight it
+            // If computer made a move, animate it after a small delay
             if (gameState.computerMoved && 
                 gameState.computerMoveRow !== undefined && 
                 gameState.computerMoveCol !== undefined) {
                 
-                // Add a small delay to make the computer move more visible
-                setTimeout(() => {
-                    highlightCell(gameState.computerMoveRow, gameState.computerMoveCol, 'Y');
-                    
-                    // Update game status again after computer's move
-                    gameOver = gameState.gameOver;
-                    updateGameStatus(gameState);
-                    updateColumnSelectors();
-                }, 500);
+                // Add a small delay before computer's move
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                // Remove the piece from the board state temporarily for animation
+                const originalValue = boardState[gameState.computerMoveRow][gameState.computerMoveCol];
+                boardState[gameState.computerMoveRow][gameState.computerMoveCol] = '';
+                updateVisualBoard(); // Update the board without the computer's piece
+                
+                // Animate the computer's disc dropping
+                await animateDiscDrop(gameState.computerMoveRow, gameState.computerMoveCol, 'Y');
+                
+                // Restore the board state
+                boardState[gameState.computerMoveRow][gameState.computerMoveCol] = originalValue;
+                
+                // Update game status again after computer's move
+                gameOver = gameState.gameOver;
+                updateGameStatus(gameState);
             }
             
+            // Final update of the board and column selectors
+            updateVisualBoard();
+            updateColumnSelectors();
             setBoardEnabled(true);
         } catch (error) {
             console.error("Failed to make move:", error);
@@ -217,19 +254,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Highlight a cell (for recent moves)
-    function highlightCell(row, col, pieceType) {
-        const cell = cells[row][col];
-        cell.classList.add('highlight');
-        
-        // Add dropping animation
-        cell.classList.add('dropping');
-        
-        // Remove animation classes after animation completes
-        setTimeout(() => {
-            cell.classList.remove('highlight');
-            cell.classList.remove('dropping');
-        }, 1000);
+    // Animate a disc dropping from the top to its position
+    function animateDiscDrop(row, col, pieceType) {
+        return new Promise(resolve => {
+            // Create a temporary disc element for the animation
+            const tempDisc = document.createElement('div');
+            tempDisc.className = `temp-disc ${pieceType}`;
+            document.body.appendChild(tempDisc);
+            
+            // Get positions for animation
+            const boardRect = boardDiv.getBoundingClientRect();
+            const cellRect = cells[row][col].getBoundingClientRect();
+            const selectorRect = columnSelectors[col].getBoundingClientRect();
+            
+            // Position the temp disc at the top of the column
+            tempDisc.style.left = `${selectorRect.left + selectorRect.width/2 - 30}px`;
+            tempDisc.style.top = `${selectorRect.top + selectorRect.height}px`;
+            
+            // Start the dropping animation
+            setTimeout(() => {
+                // Animate to final position
+                tempDisc.style.top = `${cellRect.top + cellRect.height/2 - 30}px`;
+                tempDisc.style.left = `${cellRect.left + cellRect.width/2 - 30}px`;
+                
+                // When animation completes, update the actual cell and remove temp disc
+                setTimeout(() => {
+                    // Update the actual cell
+                    cells[row][col].classList.add(pieceType);
+                    cells[row][col].classList.add('highlight');
+                    
+                    // Remove the temporary disc
+                    document.body.removeChild(tempDisc);
+                    
+                    // Remove highlight after a delay
+                    setTimeout(() => {
+                        cells[row][col].classList.remove('highlight');
+                        resolve(); // Resolve the promise when animation is complete
+                    }, 500);
+                }, 500); // Match this to the CSS animation duration
+            }, 50);
+        });
     }
     
     // Handle game reset
