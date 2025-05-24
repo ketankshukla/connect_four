@@ -436,37 +436,49 @@ document.addEventListener('DOMContentLoaded', () => {
             cells[row][col].classList.add('winner');
         });
         
-        // Get the coordinates of the first and last cells in the winning line
-        const firstCell = cells[positions[0][0]][positions[0][1]].getBoundingClientRect();
-        const lastCell = cells[positions[positions.length-1][0]][positions[positions.length-1][1]].getBoundingClientRect();
-        
-        // Calculate the center points relative to the canvas
-        const startX = firstCell.left + firstCell.width/2 - boardRect.left;
-        const startY = firstCell.top + firstCell.height/2 - boardRect.top;
-        const endX = lastCell.left + lastCell.width/2 - boardRect.left;
-        const endY = lastCell.top + lastCell.height/2 - boardRect.top;
-        
-        // Set line style based on winner
-        ctx.lineWidth = 10;
+        // Set line style to black with proper width
+        ctx.lineWidth = 12;
         ctx.lineCap = 'round';
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)'; // Black with opacity
         
-        if (winner === 'R') {
-            ctx.strokeStyle = 'rgba(255, 107, 107, 0.8)'; // Red with opacity
-        } else {
-            ctx.strokeStyle = 'rgba(255, 212, 59, 0.8)'; // Yellow with opacity
-        }
+        // Draw line through all winning positions, not just first and last
+        // This ensures the line goes through the center of each disc
+        const points = [];
         
-        // Draw the line with animation
-        animateLine(ctx, startX, startY, endX, endY);
+        // Get the center point of each winning cell
+        positions.forEach(pos => {
+            const cell = cells[pos[0]][pos[1]];
+            const cellRect = cell.getBoundingClientRect();
+            points.push({
+                x: cellRect.left + cellRect.width/2 - boardRect.left,
+                y: cellRect.top + cellRect.height/2 - boardRect.top
+            });
+        });
+        
+        // Set start and end points
+        const startX = points[0].x;
+        const startY = points[0].y;
+        const endX = points[points.length - 1].x;
+        const endY = points[points.length - 1].y;
+        
+        // Draw the line with animation through all points
+        animateLine(ctx, points);
     }
     
-    // Animate the drawing of the line
-    function animateLine(ctx, startX, startY, endX, endY) {
-        const dx = endX - startX;
-        const dy = endY - startY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+    // Animate the drawing of the line through all points
+    function animateLine(ctx, points) {
+        if (!points || points.length < 2) return;
+        
+        // Calculate total path length
+        let totalLength = 0;
+        for (let i = 0; i < points.length - 1; i++) {
+            const dx = points[i+1].x - points[i].x;
+            const dy = points[i+1].y - points[i].y;
+            totalLength += Math.sqrt(dx * dx + dy * dy);
+        }
+        
         const duration = 800; // milliseconds
-        const speed = distance / duration;
+        const speed = totalLength / duration;
         
         let progress = 0;
         let lastTimestamp = null;
@@ -477,19 +489,44 @@ document.addEventListener('DOMContentLoaded', () => {
             lastTimestamp = timestamp;
             
             progress += speed * elapsed;
-            if (progress > distance) progress = distance;
+            if (progress > totalLength) progress = totalLength;
             
-            const ratio = progress / distance;
-            const currentX = startX + dx * ratio;
-            const currentY = startY + dy * ratio;
-            
+            // Clear the canvas
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            
+            // Start drawing path
             ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(currentX, currentY);
+            ctx.moveTo(points[0].x, points[0].y);
+            
+            // Draw up to the current progress point
+            let currentLength = 0;
+            let i = 0;
+            
+            while (i < points.length - 1 && currentLength < progress) {
+                // Calculate segment length
+                const dx = points[i+1].x - points[i].x;
+                const dy = points[i+1].y - points[i].y;
+                const segmentLength = Math.sqrt(dx * dx + dy * dy);
+                
+                if (currentLength + segmentLength > progress) {
+                    // We need to stop partway through this segment
+                    const remainingLength = progress - currentLength;
+                    const ratio = remainingLength / segmentLength;
+                    const stopX = points[i].x + dx * ratio;
+                    const stopY = points[i].y + dy * ratio;
+                    ctx.lineTo(stopX, stopY);
+                    break;
+                } else {
+                    // Draw the full segment
+                    ctx.lineTo(points[i+1].x, points[i+1].y);
+                    currentLength += segmentLength;
+                    i++;
+                }
+            }
+            
             ctx.stroke();
             
-            if (progress < distance) {
+            if (progress < totalLength) {
                 requestAnimationFrame(draw);
             }
         }
