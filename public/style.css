@@ -188,13 +188,7 @@ h1 {
     pointer-events: none; /* So it doesn't interfere with clicks */
 }
 
-.temp-disc.R {
-    background-color: #FF6B6B; /* Red */
-}
-
-.temp-disc.Y {
-    background-color: #FFD43B; /* Python Yellow */
-}
+/* We're using inline styles for disc colors now */
 
 /* Bounce effect for when disc lands */
 @keyframes bounce {

@@ -263,7 +263,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Promise(resolve => {
             // Create a temporary disc element for the animation
             const tempDisc = document.createElement('div');
-            tempDisc.className = `temp-disc ${pieceType}`;
+            tempDisc.className = `temp-disc`;
+            
+            // Set the proper color based on piece type
+            if (pieceType === 'R') {
+                tempDisc.style.backgroundColor = '#FF6B6B'; // Red
+            } else if (pieceType === 'Y') {
+                tempDisc.style.backgroundColor = '#FFD43B'; // Yellow
+            }
+            
             document.body.appendChild(tempDisc);
             
             // Get positions for animation
@@ -286,6 +294,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Update the actual cell
                     cells[row][col].classList.add(pieceType);
                     cells[row][col].classList.add('highlight');
+                    
+                    // Set the cell background color directly
+                    if (pieceType === 'R') {
+                        cells[row][col].style.backgroundColor = '#FF6B6B'; // Red
+                    } else if (pieceType === 'Y') {
+                        cells[row][col].style.backgroundColor = '#FFD43B'; // Yellow
+                    }
                     
                     // Remove the temporary disc
                     document.body.removeChild(tempDisc);
@@ -375,14 +390,19 @@ document.addEventListener('DOMContentLoaded', () => {
         positions.forEach(pos => {
             const row = pos[0];
             const col = pos[1];
-            cells[row][col].classList.add('winner');
+            const cell = cells[row][col];
             
-            // Find the disc element inside the cell and change its color to green
-            const disc = cells[row][col].querySelector('.disc');
-            if (disc) {
-                // Store the original color for reset
-                disc.dataset.originalColor = disc.style.backgroundColor;
-                disc.style.backgroundColor = '#32CD32'; // Lime green
+            // Add winner class for pulsing effect
+            cell.classList.add('winner');
+            
+            // Change the cell background color to green directly
+            cell.style.backgroundColor = '#32CD32'; // Lime green
+            
+            // Store the original color for reset
+            if (cell.classList.contains('R')) {
+                cell.dataset.originalColor = '#FF6B6B'; // Red
+            } else if (cell.classList.contains('Y')) {
+                cell.dataset.originalColor = '#FFD43B'; // Yellow
             }
         });
     }
@@ -399,11 +419,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.cell.winner').forEach(cell => {
             cell.classList.remove('winner');
             
-            // Restore original disc color if it exists
-            const disc = cell.querySelector('.disc');
-            if (disc && disc.dataset.originalColor) {
-                disc.style.backgroundColor = disc.dataset.originalColor;
-                delete disc.dataset.originalColor;
+            // Restore original cell color if it exists
+            if (cell.dataset.originalColor) {
+                cell.style.backgroundColor = cell.dataset.originalColor;
+                delete cell.dataset.originalColor;
+            } else if (cell.classList.contains('R')) {
+                cell.style.backgroundColor = '#FF6B6B'; // Red
+            } else if (cell.classList.contains('Y')) {
+                cell.style.backgroundColor = '#FFD43B'; // Yellow
+            } else {
+                cell.style.backgroundColor = '#3c3c3c'; // Default background
             }
         });
     }
