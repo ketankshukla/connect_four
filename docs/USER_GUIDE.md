@@ -61,3 +61,7 @@ If you encounter any issues:
 - Clear your browser cache if you experience unusual behavior
 
 Enjoy playing Connect Four!
+
+## Technical Note
+
+This game has been refactored to use a modular architecture for better performance and maintainability. The refactoring doesn't change any gameplay features but makes the code more organized and easier to maintain. For more details, see the `REFACTORING_GUIDE.md` in the docs folder.

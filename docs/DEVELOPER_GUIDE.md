@@ -15,12 +15,23 @@ The application follows a client-server architecture:
 connect_four/
 ├── docs/                   # Documentation
 │   ├── USER_GUIDE.md       # Guide for users
-│   └── DEVELOPER_GUIDE.md  # This file
+│   ├── DEVELOPER_GUIDE.md  # This file
+│   └── REFACTORING_GUIDE.md # Refactoring documentation
 ├── public/                 # Static files
 │   ├── index.html          # Main HTML page
-│   ├── script.js           # Client-side JavaScript
-│   └── style.css           # CSS styles
-├── index.py                # Flask application
+│   ├── style.css           # CSS styles
+│   ├── script.js           # Compatibility layer
+│   └── js/                 # JavaScript modules
+│       ├── api-client.js   # API communication
+│       ├── board.js        # Board rendering
+│       ├── game-state.js   # Game state management
+│       ├── ui-controller.js # UI interactions
+│       └── main.js         # Application entry point
+├── game_logic.py           # Core game mechanics
+├── ai_engine.py            # AI logic and algorithms
+├── api_routes.py           # Flask API endpoints
+├── app.py                  # Application factory
+├── index.py                # Entry point for Vercel
 ├── requirements.txt        # Python dependencies
 ├── vercel.json             # Vercel configuration
 └── README.md               # Project overview
@@ -28,7 +39,15 @@ connect_four/
 
 ## Backend Implementation
 
-The backend is built with Flask and provides the following API endpoints:
+The backend is built with Flask and follows a modular architecture with clear separation of concerns:
+
+### Module Structure
+
+- **app.py**: Contains the application factory function `create_app()` that configures and returns the Flask application
+- **index.py**: Entry point for Vercel deployment that imports from app.py
+- **game_logic.py**: Core game mechanics and state management in the `GameState` class
+- **ai_engine.py**: AI logic and minimax algorithm in the `AIEngine` class
+- **api_routes.py**: Flask Blueprint with all API endpoints
 
 ### API Endpoints
 
@@ -42,9 +61,9 @@ The backend is built with Flask and provides the following API endpoints:
 - **POST /api/reset**: Resets the game to its initial state
   - Response: JSON with fresh game state
 
-### Game Logic
+### Game Logic (game_logic.py)
 
-The core game logic is implemented in `index.py` and includes:
+The core game logic is implemented in the `GameState` class and includes:
 
 - **Board Representation**: 2D array (6×7) where empty cells are represented by empty strings, player discs by 'R' (Red), and computer discs by 'Y' (Yellow)
 
@@ -53,12 +72,18 @@ The core game logic is implemented in `index.py` and includes:
   - `is_valid_move()`: Checks if a move is valid (column not full)
   - `get_next_open_row()`: Finds the next open row in a given column
   - `make_move()`: Places a piece in the specified column
+  - `get_state_dict()`: Returns a dictionary representation of the game state
 
-- **AI Implementation**:
+### AI Implementation (ai_engine.py)
+
+The AI logic is implemented in the `AIEngine` class:
+
+- **Minimax Algorithm**:
   - `minimax()`: Implements the Minimax algorithm with Alpha-Beta pruning
   - `evaluate_window()`: Scores a window of 4 positions based on its pieces
   - `score_position()`: Evaluates the entire board position
-  - `computer_move()`: Determines the best move for the computer
+  - `get_best_move()`: Determines the best move for the computer
+  - `set_difficulty()`: Allows adjusting the AI difficulty by changing search depth
 
 ### AI Algorithm
 
@@ -77,24 +102,49 @@ The evaluation function prioritizes:
 
 ## Frontend Implementation
 
-The frontend is built with vanilla JavaScript and communicates with the backend via fetch API calls.
+The frontend is built with vanilla JavaScript using ES6 modules for better organization and maintainability. It communicates with the backend via fetch API calls.
+
+### Module Structure
+
+- **main.js**: Entry point that initializes all modules and sets up event listeners
+- **api-client.js**: Handles all communication with the backend API
+- **game-state.js**: Manages the client-side game state
+- **board.js**: Handles the rendering and visual aspects of the game board
+- **ui-controller.js**: Manages user interactions and game flow
+- **script.js**: Compatibility layer for backward compatibility
 
 ### Key Components
 
 - **Board Representation**: 6×7 grid of cells with column selectors for input
 - **Game State Management**: Tracks the current state locally and updates via API calls
 - **UI Updates**: Reflects the current game state and provides visual feedback
-- **Animations**: Includes dropping animations and highlighting for recent moves
+- **Animations**: Includes visual feedback for moves and highlighting for winning positions
 
-### JavaScript Functions
+### Key Module Functions
 
-- `initializeGame()`: Sets up the game board and fetches initial state
-- `createBoard()`: Creates the DOM elements for the game board
+#### api-client.js
 - `fetchGameState()`: Gets the current game state from the server
-- `handleColumnClick()`: Processes player moves and updates the UI
-- `handleReset()`: Resets the game
-- `updateBoardFromState()`: Updates the visual board based on game state
-- `highlightCell()`: Provides visual feedback for recent moves
+- `makePlayerMove()`: Sends a player move to the server
+- `resetGame()`: Requests a game reset from the server
+
+#### game-state.js
+- `initializeState()`: Sets up the initial game state
+- `updateBoardFromFlatArray()`: Converts the flat board array to a 2D array
+- `updateGameState()`: Updates the game state with server data
+- `getState()`: Returns the current game state
+
+#### board.js
+- `initializeBoard()`: Sets up the game board
+- `updateVisualBoard()`: Updates the visual representation of the board
+- `updateColumnSelectors()`: Updates the column selectors based on game state
+- `highlightWinningPositions()`: Highlights winning positions
+- `setBoardEnabled()`: Enables or disables user interaction
+
+#### ui-controller.js
+- `initialize()`: Sets up the UI controller
+- `handleColumnClick()`: Processes player moves
+- `handleReset()`: Handles game reset
+- `updateGameStatus()`: Updates the game status message
 
 ## Local Development Setup
 
@@ -119,10 +169,29 @@ The frontend is built with vanilla JavaScript and communicates with the backend 
    ```powershell
    python index.py
    ```
+   This runs the Vercel-compatible entry point. Alternatively, you can run:
+   ```powershell
+   python app.py
+   ```
 5. Open your browser and navigate to:
    ```
    http://127.0.0.1:8080/
    ```
+
+### Development Workflow
+
+1. **Backend Changes**: Modify the appropriate module based on what you're changing:
+   - Game mechanics: `game_logic.py`
+   - AI algorithm: `ai_engine.py`
+   - API endpoints: `api_routes.py`
+   - Application configuration: `app.py`
+
+2. **Frontend Changes**: Modify the appropriate module in the `public/js` directory:
+   - API communication: `api-client.js`
+   - Game state management: `game-state.js`
+   - Board rendering: `board.js`
+   - User interactions: `ui-controller.js`
+   - Application initialization: `main.js`
 
 ## Deployment to Vercel
 

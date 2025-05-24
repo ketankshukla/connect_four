@@ -1,0 +1,30 @@
+I need help refactoring my Connect Four game to improve its architecture, organization, and performance. Currently, the code is in monolithic files (index.py and script.js), and I want to modularize them into smaller, more maintainable components.
+
+Please help me with the following:
+
+1. Analyze the current structure of my Connect Four game (located at e:\projects\python_games\connect_four\)
+
+2. For the Python backend (index.py):
+   - Split it into logical modules (e.g., game_logic.py, api_routes.py, ai_engine.py)
+   - Implement proper separation of concerns
+   - Optimize the AI algorithm if possible
+   - Ensure the API endpoints remain compatible with the frontend
+
+3. For the JavaScript frontend (script.js):
+   - Refactor into modular components using ES6 modules
+   - Create separate files for different concerns (e.g., board.js, game-state.js, ui-controller.js, api-client.js)
+   - Implement proper event handling and state management
+   - Maintain the current functionality but with cleaner code organization
+
+4. Update any build/deployment configurations as needed to support the new modular structure
+
+5. Ensure the refactored code maintains all current functionality:
+   - Player vs Computer gameplay
+   - Game state management
+   - Board visualization
+   - Reset functionality
+   - Winning condition detection
+
+The goal is to have a more maintainable codebase with better separation of concerns, while potentially improving performance through optimized code organization. Please preserve all the current game behavior and visual styling.
+
+Additionally, please provide a brief explanation of the architectural decisions you make during the refactoring process, so I can understand the new structure and how to extend it in the future.
