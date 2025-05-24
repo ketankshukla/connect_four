@@ -113,12 +113,23 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
                 const cell = cells[r][c];
-                cell.className = 'cell';
                 
+                // Reset all properties and classes
+                cell.className = 'cell';
+                cell.style.backgroundColor = '#3c3c3c'; // Reset to default background
+                
+                // Remove any data attributes
+                if (cell.dataset.originalColor) {
+                    delete cell.dataset.originalColor;
+                }
+                
+                // Add appropriate class based on board state
                 if (boardState[r][c] === 'R') {
                     cell.classList.add('R');
+                    cell.style.backgroundColor = '#FF6B6B'; // Red
                 } else if (boardState[r][c] === 'Y') {
                     cell.classList.add('Y');
+                    cell.style.backgroundColor = '#FFD43B'; // Yellow
                 }
             }
         }
