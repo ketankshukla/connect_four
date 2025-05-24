@@ -171,8 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusDiv.textContent = `Player ${localCurrentPlayer}'s turn`;
             }
             
-            // Remove any existing winning line
-            removeWinningLine();
+            // Remove any existing winning highlights
+            removeWinningHighlights();
         }
     }
     
@@ -337,8 +337,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updateBoardFromState(gameState.board);
             updateGameStatus(gameState);
             
-            // Remove any winning line
-            removeWinningLine();
+            // Remove any winning highlights
+            removeWinningHighlights();
             
             setBoardEnabled(true);
         } catch (error) {
@@ -393,158 +393,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Highlight winning positions by drawing a line through them
+    // Highlight winning positions by changing their color to green
     function highlightWinningPositions(positions, winner) {
-        // Remove any existing winning line
-        removeWinningLine();
+        // Remove any previous winning highlights
+        removeWinningHighlights();
         
-        if (!positions || positions.length < 2) return;
+        if (!positions || positions.length < 1) return;
         
-        // Create a canvas element for drawing the line
-        const canvas = document.createElement('canvas');
-        canvas.id = 'winning-line';
-        canvas.className = 'winning-line';
-        
-        // Position the canvas over the board
-        const boardRect = boardDiv.getBoundingClientRect();
-        canvas.width = boardRect.width;
-        canvas.height = boardRect.height;
-        canvas.style.position = 'absolute';
-        canvas.style.top = '0';
-        canvas.style.left = '0';
-        canvas.style.pointerEvents = 'none'; // So it doesn't interfere with clicks
-        
-        // Add the canvas to the board container
-        const boardContainer = document.getElementById('board-container');
-        boardContainer.style.position = 'relative'; // Ensure relative positioning for absolute child
-        boardContainer.appendChild(canvas);
-        
-        // Get the context for drawing
-        const ctx = canvas.getContext('2d');
-        
-        // Sort positions to ensure we draw from one end to the other
-        // This is important for diagonal lines
-        positions.sort((a, b) => {
-            if (a[0] === b[0]) return a[1] - b[1]; // Sort by column if same row
-            return a[0] - b[0]; // Otherwise sort by row
-        });
-        
-        // Add winner class to the winning cells to make them pulse
+        // Add winner class to the winning cells to make them pulse and appear green
         positions.forEach(pos => {
             const row = pos[0];
             const col = pos[1];
             cells[row][col].classList.add('winner');
+            
+            // Find the disc element inside the cell and change its color to green
+            const disc = cells[row][col].querySelector('.disc');
+            if (disc) {
+                // Store the original color for reset
+                disc.dataset.originalColor = disc.style.backgroundColor;
+                disc.style.backgroundColor = '#32CD32'; // Lime green
+            }
         });
-        
-        // Set line style to black with proper width
-        ctx.lineWidth = 12;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)'; // Black with opacity
-        
-        // Draw line through all winning positions, not just first and last
-        // This ensures the line goes through the center of each disc
-        const points = [];
-        
-        // Get the center point of each winning cell
-        positions.forEach(pos => {
-            const cell = cells[pos[0]][pos[1]];
-            const cellRect = cell.getBoundingClientRect();
-            points.push({
-                x: cellRect.left + cellRect.width/2 - boardRect.left,
-                y: cellRect.top + cellRect.height/2 - boardRect.top
-            });
-        });
-        
-        // Set start and end points
-        const startX = points[0].x;
-        const startY = points[0].y;
-        const endX = points[points.length - 1].x;
-        const endY = points[points.length - 1].y;
-        
-        // Draw the line with animation through all points
-        animateLine(ctx, points);
     }
     
-    // Animate the drawing of the line through all points
-    function animateLine(ctx, points) {
-        if (!points || points.length < 2) return;
-        
-        // Calculate total path length
-        let totalLength = 0;
-        for (let i = 0; i < points.length - 1; i++) {
-            const dx = points[i+1].x - points[i].x;
-            const dy = points[i+1].y - points[i].y;
-            totalLength += Math.sqrt(dx * dx + dy * dy);
-        }
-        
-        const duration = 800; // milliseconds
-        const speed = totalLength / duration;
-        
-        let progress = 0;
-        let lastTimestamp = null;
-        
-        function draw(timestamp) {
-            if (!lastTimestamp) lastTimestamp = timestamp;
-            const elapsed = timestamp - lastTimestamp;
-            lastTimestamp = timestamp;
-            
-            progress += speed * elapsed;
-            if (progress > totalLength) progress = totalLength;
-            
-            // Clear the canvas
-            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            
-            // Start drawing path
-            ctx.beginPath();
-            ctx.moveTo(points[0].x, points[0].y);
-            
-            // Draw up to the current progress point
-            let currentLength = 0;
-            let i = 0;
-            
-            while (i < points.length - 1 && currentLength < progress) {
-                // Calculate segment length
-                const dx = points[i+1].x - points[i].x;
-                const dy = points[i+1].y - points[i].y;
-                const segmentLength = Math.sqrt(dx * dx + dy * dy);
-                
-                if (currentLength + segmentLength > progress) {
-                    // We need to stop partway through this segment
-                    const remainingLength = progress - currentLength;
-                    const ratio = remainingLength / segmentLength;
-                    const stopX = points[i].x + dx * ratio;
-                    const stopY = points[i].y + dy * ratio;
-                    ctx.lineTo(stopX, stopY);
-                    break;
-                } else {
-                    // Draw the full segment
-                    ctx.lineTo(points[i+1].x, points[i+1].y);
-                    currentLength += segmentLength;
-                    i++;
-                }
-            }
-            
-            ctx.stroke();
-            
-            if (progress < totalLength) {
-                requestAnimationFrame(draw);
-            }
-        }
-        
-        requestAnimationFrame(draw);
+    // Transition the winning discs to green with animation
+    function animateWinningDiscs() {
+        // This function is no longer needed as we're changing colors directly
+        // The CSS animation will handle the visual effect
     }
     
-    // Remove any existing winning line and winner classes
-    function removeWinningLine() {
-        // Remove the canvas line
-        const existingLine = document.getElementById('winning-line');
-        if (existingLine) {
-            existingLine.parentNode.removeChild(existingLine);
-        }
-        
+    // Remove any existing winning highlights
+    function removeWinningHighlights() {
         // Remove winner class from all cells
         document.querySelectorAll('.cell.winner').forEach(cell => {
             cell.classList.remove('winner');
+            
+            // Restore original disc color if it exists
+            const disc = cell.querySelector('.disc');
+            if (disc && disc.dataset.originalColor) {
+                disc.style.backgroundColor = disc.dataset.originalColor;
+                delete disc.dataset.originalColor;
+            }
         });
     }
 });
